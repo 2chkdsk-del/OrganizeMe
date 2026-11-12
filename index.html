@@ -27,12 +27,9 @@
   }
   * { box-sizing:border-box; }
   body { margin:0; font-family:system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); transition:background .2s,color .2s; }
-  header { padding:10px 16px 8px; display:flex; flex-direction:column; gap:10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:10; }
-  .hd-top { display:flex; align-items:center; gap:8px; }
-  .hd-top h1 { font-size:16px; margin:0; margin-right:auto; white-space:nowrap; }
-  .hd-actions { display:flex; gap:6px; flex-wrap:nowrap; }
-  .hd-actions .iconbtn { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
-  .hd-chips { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  header { padding:10px 16px 8px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:10; }
+  .hd-row { display:flex; align-items:center; gap:8px; }
+  .hd-row .tabs-wrap { flex:1 1 0; min-width:0; }
   .tabs-wrap { position:relative; }
   .tabs { display:flex; gap:8px; min-width:0; overflow-x:auto; overflow-y:hidden; padding-bottom:6px; margin-bottom:-6px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
   .tabs::-webkit-scrollbar { height:6px; }
@@ -45,11 +42,6 @@
   .tabs-arrow:hover { color:var(--txt); opacity:1; }
   .tabs-arrow.left  { left:0;  justify-content:flex-start; padding-left:4px; background:linear-gradient(90deg, var(--bg) 35%, transparent); }
   .tabs-arrow.right { right:0; justify-content:flex-end;  padding-right:4px; background:linear-gradient(270deg, var(--bg) 35%, transparent); }
-  @media (max-width:640px){
-    .hd-actions .lbl { display:none; }
-    .hd-actions .iconbtn { padding:6px 9px; font-size:15px; }
-    .hd-chips { gap:6px; }
-  }
   .tab.active { background:var(--ac); border-color:var(--ac); color:#fff; }
   .spacer { flex:1; }
   main { padding:16px; max-width:900px; margin:0 auto; }
@@ -267,35 +259,59 @@
 
   #confetti { position:fixed; inset:0; pointer-events:none; z-index:200; display:none; }
   #confetti.on { display:block; }
+
+  /* ---- Cabeçalho: abas no topo, depois indicadores e botões ---- */
+  .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .subhead { max-width:900px; margin:0 auto; padding:12px 16px 0; display:flex; flex-direction:column; gap:10px; }
+  .hd-chips { display:flex; gap:8px; }
+  .hd-chips .goal-chip, .hd-chips .gift-chip { flex:1 1 0; min-width:0; max-width:none; }
+  .hd-chips .gbar { flex:1 1 auto; width:auto !important; min-width:24px; }
+  .hd-chips .gift-chip .label { flex:0 1 auto; min-width:0; max-width:110px; }
+  .hd-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .hd-actions .iconbtn { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; padding:8px 12px; }
+  .hd-actions .iconbtn.so-icone { margin-left:auto; padding:8px 11px; }
+  .hd-row .cof-chip { flex:0 0 auto; }
+
+  /* ---- Barra fixa inferior: backup e instalar ---- */
+  .dock { position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; justify-content:center; gap:8px; flex-wrap:wrap; padding:8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); background:var(--bg); border-top:1px solid var(--line); box-shadow:0 -6px 20px rgba(0,0,0,.18); }
+  .dock .iconbtn { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; }
+  body { padding-bottom:64px; }
+  .toast { bottom:76px !important; }
+  body.one-thing .dock, body.one-thing .subhead { display:none !important; }
 </style>
 </head><body>
 <header>
-  <div class="hd-top">
-    <h1>📋 OrganizeMe</h1>
-    <div class="hd-actions">
-      <button class="iconbtn" id="btn-resp" title="Respiração guiada" aria-label="Respiração guiada">🌬️<span class="lbl"> Respiração</span></button>
-      <button class="iconbtn" id="btn-one-thing" title="Modo só uma coisa" aria-label="Modo só uma coisa">🎯<span class="lbl"> Só uma coisa</span></button>
-      <button class="iconbtn" id="btn-theme" title="Alternar tema" aria-label="Alternar tema">🌗<span class="lbl"> Tema</span></button>
-      <button class="iconbtn" id="btn-export" title="Exportar backup JSON" aria-label="Exportar backup JSON">⬇<span class="lbl"> Exportar</span></button>
-      <button class="iconbtn" id="btn-import" title="Importar backup JSON" aria-label="Importar backup JSON">⬆<span class="lbl"> Importar</span></button>
-      <input type="file" id="file-import" accept="application/json" class="hidden">
-      <button class="iconbtn hidden" id="btn-install" title="Instalar como app" aria-label="Instalar como app">📲<span class="lbl"> Instalar</span></button>
+  <h1 class="vh">OrganizeMe</h1>
+  <div class="hd-row">
+    <div class="tabs-wrap">
+      <button class="tabs-arrow left" id="tabs-left" aria-label="Abas anteriores" tabindex="-1">‹</button>
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-tab="agenda">Agenda</button>
+        <button class="tab" data-tab="notas">Notas</button>
+        <button class="tab" data-tab="crono">Cronograma</button>
+        <button class="tab" data-tab="foco">Foco</button>
+        <button class="tab" data-tab="inbox">Inbox</button>
+        <button class="tab" data-tab="rewards">🎁 Recompensas</button>
+        <button class="tab" data-tab="gastos">💰 Gastos</button>
+        <button class="tab" data-tab="hist">📊 Histórico</button>
+      </nav>
+      <button class="tabs-arrow right" id="tabs-right" aria-label="Mais abas" tabindex="-1">›</button>
+    </div>
+    <div class="cof-chip" id="cof-chip" title="Cofrinho — clique para ir aos gastos">
+      <span>🐷</span>
+      <span class="saldo" id="cof-chip-saldo">R$ 0,00</span>
+      <button class="eye" id="cof-chip-eye" title="Esconder/mostrar saldo">👁</button>
     </div>
   </div>
+</header>
 
+<div class="subhead">
   <div class="hd-chips">
     <div class="goal-chip" id="goal-chip" title="Meta diária">
       <span id="goal-label">🎯 0/5</span>
       <div class="gbar"><div id="goal-bar"></div></div>
       <button class="gear" id="goal-gear" title="Editar meta">⚙</button>
     </div>
-
-    <div class="cof-chip" id="cof-chip" title="Cofrinho — clique para ir aos gastos">
-      <span>🐷</span>
-      <span class="saldo" id="cof-chip-saldo">R$ 0,00</span>
-      <button class="eye" id="cof-chip-eye" title="Esconder/mostrar saldo">👁</button>
-    </div>
-
     <div class="gift-chip" id="gift-chip" title="Próxima recompensa">
       <span id="gift-icon">🎁</span>
       <span class="label" id="gift-label">—</span>
@@ -303,21 +319,12 @@
     </div>
   </div>
 
-  <div class="tabs-wrap">
-    <button class="tabs-arrow left" id="tabs-left" aria-label="Abas anteriores" tabindex="-1">‹</button>
-    <nav class="tabs" id="tabs">
-      <button class="tab active" data-tab="agenda">Agenda</button>
-      <button class="tab" data-tab="notas">Notas</button>
-      <button class="tab" data-tab="crono">Cronograma</button>
-      <button class="tab" data-tab="foco">Foco</button>
-      <button class="tab" data-tab="inbox">Inbox</button>
-      <button class="tab" data-tab="rewards">🎁 Recompensas</button>
-      <button class="tab" data-tab="gastos">💰 Gastos</button>
-      <button class="tab" data-tab="hist">📊 Histórico</button>
-    </nav>
-    <button class="tabs-arrow right" id="tabs-right" aria-label="Mais abas" tabindex="-1">›</button>
+  <div class="hd-actions">
+    <button class="iconbtn" id="btn-one-thing" title="Modo só uma coisa">🎯 Só uma coisa</button>
+    <button class="iconbtn" id="btn-resp" title="Respiração guiada">🌬️ Respiração</button>
+    <button class="iconbtn so-icone" id="btn-theme" title="Alternar tema (claro/escuro)" aria-label="Alternar tema">🌗</button>
   </div>
-</header>
+</div>
 
 <main>
   <section id="panel-ot">
@@ -2595,5 +2602,12 @@ setInterval(()=>{
   }
 }, 1000);
 </script>
+
+<div class="dock" id="dock">
+  <button class="iconbtn" id="btn-export" title="Exportar backup JSON">⬇ Exportar</button>
+  <button class="iconbtn" id="btn-import" title="Importar backup JSON">⬆ Importar</button>
+  <input type="file" id="file-import" accept="application/json" class="hidden">
+  <button class="iconbtn hidden" id="btn-install" title="Instalar como app">📲 Instalar</button>
+</div>
 </body>
 </html>
