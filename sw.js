@@ -1,6 +1,6 @@
 // OrganizeMe — service worker (offline-first)
 // Ao alterar o index.html, troque a versão abaixo (v3 -> v4...) para os celulares pegarem a atualização.
-const CACHE = 'organizeme-v4';
+const CACHE = 'organizeme-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', e => {

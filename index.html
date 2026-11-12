@@ -27,14 +27,29 @@
   }
   * { box-sizing:border-box; }
   body { margin:0; font-family:system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); transition:background .2s,color .2s; }
-  header { padding:12px 16px; display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:10; align-items:center; }
-  header h1 { font-size:16px; margin:0 12px 0 0; }
-  .tabs { display:flex; gap:8px; flex:1 1 280px; min-width:0; overflow-x:auto; overflow-y:hidden; padding-bottom:6px; margin-bottom:-6px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+  header { padding:10px 16px 8px; display:flex; flex-direction:column; gap:10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:10; }
+  .hd-top { display:flex; align-items:center; gap:8px; }
+  .hd-top h1 { font-size:16px; margin:0; margin-right:auto; white-space:nowrap; }
+  .hd-actions { display:flex; gap:6px; flex-wrap:nowrap; }
+  .hd-actions .iconbtn { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+  .hd-chips { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .tabs-wrap { position:relative; }
+  .tabs { display:flex; gap:8px; min-width:0; overflow-x:auto; overflow-y:hidden; padding-bottom:6px; margin-bottom:-6px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
   .tabs::-webkit-scrollbar { height:6px; }
   .tabs::-webkit-scrollbar-track { background:transparent; }
   .tabs::-webkit-scrollbar-thumb { background:var(--line); border-radius:6px; }
   .tabs::-webkit-scrollbar-thumb:hover { background:var(--mut); }
   .tab { flex:0 0 auto; white-space:nowrap; padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--txt); cursor:pointer; font-size:14px; }
+  .tabs-arrow { position:absolute; top:0; bottom:6px; width:34px; border:0; padding:0; margin:0; display:flex; align-items:center; cursor:pointer; color:var(--mut); font-size:22px; line-height:1; opacity:0; pointer-events:none; transition:opacity .2s, color .15s; z-index:2; }
+  .tabs-arrow.show { opacity:.85; pointer-events:auto; }
+  .tabs-arrow:hover { color:var(--txt); opacity:1; }
+  .tabs-arrow.left  { left:0;  justify-content:flex-start; padding-left:4px; background:linear-gradient(90deg, var(--bg) 35%, transparent); }
+  .tabs-arrow.right { right:0; justify-content:flex-end;  padding-right:4px; background:linear-gradient(270deg, var(--bg) 35%, transparent); }
+  @media (max-width:640px){
+    .hd-actions .lbl { display:none; }
+    .hd-actions .iconbtn { padding:6px 9px; font-size:15px; }
+    .hd-chips { gap:6px; }
+  }
   .tab.active { background:var(--ac); border-color:var(--ac); color:#fff; }
   .spacer { flex:1; }
   main { padding:16px; max-width:900px; margin:0 auto; }
@@ -255,44 +270,53 @@
 </style>
 </head><body>
 <header>
-  <h1>📋 OrganizeMe</h1>
-  <nav class="tabs" id="tabs">
-  <button class="tab active" data-tab="agenda">Agenda</button>
-  <button class="tab" data-tab="notas">Notas</button>
-  <button class="tab" data-tab="crono">Cronograma</button>
-  <button class="tab" data-tab="foco">Foco</button>
-  <button class="tab" data-tab="inbox">Inbox</button>
-  <button class="tab" data-tab="rewards">🎁 Recompensas</button>
-  <button class="tab" data-tab="gastos">💰 Gastos</button>
-  <button class="tab" data-tab="hist">📊 Histórico</button>
-  </nav>
-  <span class="spacer"></span>
-
-  <div class="goal-chip" id="goal-chip" title="Meta diária">
-    <span id="goal-label">🎯 0/5</span>
-    <div class="gbar"><div id="goal-bar"></div></div>
-    <button class="gear" id="goal-gear" title="Editar meta">⚙</button>
+  <div class="hd-top">
+    <h1>📋 OrganizeMe</h1>
+    <div class="hd-actions">
+      <button class="iconbtn" id="btn-resp" title="Respiração guiada" aria-label="Respiração guiada">🌬️<span class="lbl"> Respiração</span></button>
+      <button class="iconbtn" id="btn-one-thing" title="Modo só uma coisa" aria-label="Modo só uma coisa">🎯<span class="lbl"> Só uma coisa</span></button>
+      <button class="iconbtn" id="btn-theme" title="Alternar tema" aria-label="Alternar tema">🌗<span class="lbl"> Tema</span></button>
+      <button class="iconbtn" id="btn-export" title="Exportar backup JSON" aria-label="Exportar backup JSON">⬇<span class="lbl"> Exportar</span></button>
+      <button class="iconbtn" id="btn-import" title="Importar backup JSON" aria-label="Importar backup JSON">⬆<span class="lbl"> Importar</span></button>
+      <input type="file" id="file-import" accept="application/json" class="hidden">
+      <button class="iconbtn hidden" id="btn-install" title="Instalar como app" aria-label="Instalar como app">📲<span class="lbl"> Instalar</span></button>
+    </div>
   </div>
 
-  <div class="cof-chip" id="cof-chip" title="Cofrinho — clique para ir aos gastos">
-    <span>🐷</span>
-    <span class="saldo" id="cof-chip-saldo">R$ 0,00</span>
-    <button class="eye" id="cof-chip-eye" title="Esconder/mostrar saldo">👁</button>
+  <div class="hd-chips">
+    <div class="goal-chip" id="goal-chip" title="Meta diária">
+      <span id="goal-label">🎯 0/5</span>
+      <div class="gbar"><div id="goal-bar"></div></div>
+      <button class="gear" id="goal-gear" title="Editar meta">⚙</button>
+    </div>
+
+    <div class="cof-chip" id="cof-chip" title="Cofrinho — clique para ir aos gastos">
+      <span>🐷</span>
+      <span class="saldo" id="cof-chip-saldo">R$ 0,00</span>
+      <button class="eye" id="cof-chip-eye" title="Esconder/mostrar saldo">👁</button>
+    </div>
+
+    <div class="gift-chip" id="gift-chip" title="Próxima recompensa">
+      <span id="gift-icon">🎁</span>
+      <span class="label" id="gift-label">—</span>
+      <div class="gbar"><div id="gift-bar"></div></div>
+    </div>
   </div>
 
-  <div class="gift-chip" id="gift-chip" title="Próxima recompensa">
-    <span id="gift-icon">🎁</span>
-    <span class="label" id="gift-label">—</span>
-    <div class="gbar"><div id="gift-bar"></div></div>
+  <div class="tabs-wrap">
+    <button class="tabs-arrow left" id="tabs-left" aria-label="Abas anteriores" tabindex="-1">‹</button>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="agenda">Agenda</button>
+      <button class="tab" data-tab="notas">Notas</button>
+      <button class="tab" data-tab="crono">Cronograma</button>
+      <button class="tab" data-tab="foco">Foco</button>
+      <button class="tab" data-tab="inbox">Inbox</button>
+      <button class="tab" data-tab="rewards">🎁 Recompensas</button>
+      <button class="tab" data-tab="gastos">💰 Gastos</button>
+      <button class="tab" data-tab="hist">📊 Histórico</button>
+    </nav>
+    <button class="tabs-arrow right" id="tabs-right" aria-label="Mais abas" tabindex="-1">›</button>
   </div>
-
-  <button class="iconbtn" id="btn-resp" title="Respiração guiada">🌬️ Respiração</button>
-  <button class="iconbtn" id="btn-one-thing" title="Modo só uma coisa">🎯 Só uma coisa</button>
-  <button class="iconbtn" id="btn-theme" title="Alternar tema">🌗 Tema</button>
-  <button class="iconbtn" id="btn-export" title="Exportar backup JSON">⬇ Exportar</button>
-  <button class="iconbtn" id="btn-import" title="Importar backup JSON">⬆ Importar</button>
-  <input type="file" id="file-import" accept="application/json" class="hidden">
-  <button class="iconbtn" id="btn-install" title="Instalar como app" class="hidden">📲 Instalar</button>
 </header>
 
 <main>
@@ -1510,6 +1534,18 @@ $('#btn-theme').onclick = ()=>{ const cur = localStorage.getItem(THEME_KEY)||'da
 applyTheme(localStorage.getItem(THEME_KEY)||'dark');
 
 const tabsEl = document.getElementById('tabs');
+const arrL = document.getElementById('tabs-left'), arrR = document.getElementById('tabs-right');
+function atualizarSetas(){
+  const max = tabsEl.scrollWidth - tabsEl.clientWidth;
+  arrL.classList.toggle('show', tabsEl.scrollLeft > 4);
+  arrR.classList.toggle('show', tabsEl.scrollLeft < max - 4);
+}
+tabsEl.addEventListener('scroll', atualizarSetas, {passive:true});
+window.addEventListener('resize', atualizarSetas);
+arrL.onclick = ()=> tabsEl.scrollBy({left:-Math.max(160, tabsEl.clientWidth*0.6), behavior:'smooth'});
+arrR.onclick = ()=> tabsEl.scrollBy({left: Math.max(160, tabsEl.clientWidth*0.6), behavior:'smooth'});
+atualizarSetas();
+window.addEventListener('load', atualizarSetas);
 tabsEl.addEventListener('wheel', e=>{
   if(Math.abs(e.deltaY) > Math.abs(e.deltaX) && tabsEl.scrollWidth > tabsEl.clientWidth){
     tabsEl.scrollLeft += e.deltaY; e.preventDefault();
