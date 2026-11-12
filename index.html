@@ -29,7 +29,12 @@
   body { margin:0; font-family:system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); transition:background .2s,color .2s; }
   header { padding:12px 16px; display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:10; align-items:center; }
   header h1 { font-size:16px; margin:0 12px 0 0; }
-  .tab { padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--txt); cursor:pointer; font-size:14px; }
+  .tabs { display:flex; gap:8px; flex:1 1 280px; min-width:0; overflow-x:auto; overflow-y:hidden; padding-bottom:6px; margin-bottom:-6px; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+  .tabs::-webkit-scrollbar { height:6px; }
+  .tabs::-webkit-scrollbar-track { background:transparent; }
+  .tabs::-webkit-scrollbar-thumb { background:var(--line); border-radius:6px; }
+  .tabs::-webkit-scrollbar-thumb:hover { background:var(--mut); }
+  .tab { flex:0 0 auto; white-space:nowrap; padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--txt); cursor:pointer; font-size:14px; }
   .tab.active { background:var(--ac); border-color:var(--ac); color:#fff; }
   .spacer { flex:1; }
   main { padding:16px; max-width:900px; margin:0 auto; }
@@ -251,6 +256,7 @@
 </head><body>
 <header>
   <h1>📋 OrganizeMe</h1>
+  <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="agenda">Agenda</button>
   <button class="tab" data-tab="notas">Notas</button>
   <button class="tab" data-tab="crono">Cronograma</button>
@@ -259,6 +265,7 @@
   <button class="tab" data-tab="rewards">🎁 Recompensas</button>
   <button class="tab" data-tab="gastos">💰 Gastos</button>
   <button class="tab" data-tab="hist">📊 Histórico</button>
+  </nav>
   <span class="spacer"></span>
 
   <div class="goal-chip" id="goal-chip" title="Meta diária">
@@ -1502,8 +1509,15 @@ function applyTheme(t){
 $('#btn-theme').onclick = ()=>{ const cur = localStorage.getItem(THEME_KEY)||'dark'; applyTheme(cur==='dark'?'light':'dark'); };
 applyTheme(localStorage.getItem(THEME_KEY)||'dark');
 
+const tabsEl = document.getElementById('tabs');
+tabsEl.addEventListener('wheel', e=>{
+  if(Math.abs(e.deltaY) > Math.abs(e.deltaX) && tabsEl.scrollWidth > tabsEl.clientWidth){
+    tabsEl.scrollLeft += e.deltaY; e.preventDefault();
+  }
+}, {passive:false});
 document.querySelectorAll('.tab').forEach(b=>{
   b.onclick = ()=>{
+    b.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
