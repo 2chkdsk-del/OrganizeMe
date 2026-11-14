@@ -278,7 +278,40 @@
   body { padding-bottom:64px; }
   .toast { bottom:76px !important; }
   body.one-thing .dock, body.one-thing .subhead { display:none !important; }
+  /* ---- Ajuda embutida (botões ? + manual) ---- */
+  .hb { position:relative; display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; padding:0; margin-left:6px; border-radius:50%; background:transparent; border:1px solid var(--mut); color:var(--mut); font-size:12px; font-weight:700; line-height:1; vertical-align:middle; cursor:pointer; }
+  .hb::after { content:''; position:absolute; inset:-10px; }
+  .hb:hover, .hb:focus-visible { color:var(--ac); border-color:var(--ac); }
+  .help-bg { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; z-index:500; align-items:flex-end; justify-content:center; }
+  .help-bg.on { display:flex; }
+  .help-box { background:var(--card); color:var(--txt); border:1px solid var(--line); border-radius:16px 16px 0 0; width:100%; max-width:640px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 -10px 40px rgba(0,0,0,.45); }
+  .help-head { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line); }
+  .help-head h2 { flex:1; margin:0; font-size:18px; line-height:1.25; }
+  .help-body { padding:14px 16px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; font-size:14px; line-height:1.55; }
+  .help-body p { margin:0 0 10px; }
+  .help-body ul, .help-body ol { margin:0 0 10px; padding-left:22px; }
+  .help-body li { margin-bottom:4px; }
+  .help-body .h-tip { background:var(--in); border-left:3px solid var(--ac); border-radius:8px; padding:8px 12px; color:var(--mut); margin:10px 0; }
+  .help-body .h-pts { display:inline-block; font-size:12px; font-weight:700; padding:1px 8px; border-radius:999px; background:var(--ok); color:#06210f; white-space:nowrap; }
+  .help-body .h-ver { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:12px; padding-top:10px; border-top:1px dashed var(--line); color:var(--mut); font-size:13px; }
+  .help-body .h-ver button { padding:4px 10px; font-size:13px; }
+  .help-foot { display:flex; gap:8px; justify-content:flex-end; padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); border-top:1px solid var(--line); }
+  .h-grupo { font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--mut); margin:16px 0 6px; }
+  .h-grupo:first-of-type { margin-top:6px; }
+  .h-det { border:1px solid var(--line); border-radius:10px; margin-bottom:6px; background:var(--in); }
+  .h-det > summary { cursor:pointer; padding:10px 12px; font-weight:600; list-style:none; display:flex; gap:8px; align-items:center; }
+  .h-det > summary::-webkit-details-marker { display:none; }
+  .h-det > summary::after { content:'▸'; margin-left:auto; color:var(--mut); transition:transform .15s; }
+  .h-det[open] > summary::after { transform:rotate(90deg); }
+  .h-det > .h-corpo { padding:2px 12px 10px; }
+  .help-welcome { border:1px dashed var(--ac); background:rgba(79,140,255,.07); border-radius:12px; padding:12px; margin-bottom:10px; }
+  .help-welcome .t { font-weight:700; margin-bottom:4px; }
+  @media (min-width:700px) {
+    .help-bg { align-items:center; padding:16px; }
+    .help-box { border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+  }
 </style>
+
 </head><body>
 <header>
   <h1 class="vh">OrganizeMe</h1>
@@ -322,7 +355,8 @@
   <div class="hd-actions">
     <button class="iconbtn" id="btn-one-thing" title="Modo só uma coisa">🎯 Só uma coisa</button>
     <button class="iconbtn" id="btn-resp" title="Respiração guiada">🌬️ Respiração</button>
-    <button class="iconbtn so-icone" id="btn-theme" title="Alternar tema (claro/escuro)" aria-label="Alternar tema">🌗</button>
+    <button class="iconbtn so-icone" id="btn-help" aria-label="Ajuda: manual do app" title="Ajuda: manual com a explicação de cada função">❓</button>
+    <button class="iconbtn so-icone" style="margin-left:0" id="btn-theme" title="Alternar tema (claro/escuro)" aria-label="Alternar tema">🌗</button>
   </div>
 </div>
 
@@ -345,13 +379,21 @@
   </section>
 
   <section class="panel active" id="panel-agenda">
+    <div class="help-welcome" id="help-welcome">
+      <div class="t">👋 Primeira vez por aqui?</div>
+      <div class="muted">Comece só com a <b>Agenda</b> e as <b>Recompensas</b>. Quando virar hábito, adicione os Gastos. Em cada função há um botão <b>?</b> explicando como ela funciona.</div>
+      <div class="row" style="margin-top:8px">
+        <button id="help-welcome-open">📖 Abrir o manual</button>
+        <button class="ghost" id="help-welcome-ok">Entendi</button>
+      </div>
+    </div>
     <div class="card">
       <div class="row">
         <input id="ag-hora" type="time" title="Horário">
         <input id="ag-txt" class="grow" placeholder="Nova tarefa da agenda..." style="flex:1">
         <button id="ag-add">Adicionar</button>
       </div>
-      <p class="muted">A primeira tarefa não concluída é o <b>AGORA</b>; a seguinte é o <b>DEPOIS</b>.</p>
+      <p class="muted">A primeira tarefa não concluída é o <b>AGORA</b>; a seguinte é o <b>DEPOIS</b>.<button class="hb" data-help="agenda" aria-label="Ajuda: Agenda" title="Ajuda">?</button></p>
     </div>
     <div id="ag-now" class="card now" style="display:none">
       <div class="muted">AGORA</div>
@@ -378,7 +420,7 @@
       <textarea id="nt-txt" placeholder="Joga o pensamento aqui (Ctrl+Enter para salvar)..."></textarea>
       <div class="row" style="margin-top:8px">
         <button id="nt-add">Salvar nota</button>
-        <span class="muted">Classifique depois — não perca tempo agora.</span>
+        <span class="muted">Classifique depois — não perca tempo agora.<button class="hb" data-help="notas" aria-label="Ajuda: Notas" title="Ajuda">?</button></span>
       </div>
     </div>
     <div id="nt-list"></div>
@@ -390,14 +432,14 @@
         <input id="cr-txt" class="grow" placeholder="Tarefa grande (ex.: estudar para prova)" style="flex:1">
         <button id="cr-add">Adicionar</button>
       </div>
-      <p class="muted">Clique em <b>+ micro-passos</b> para quebrar. Use <b>✨ Sugerir</b> para gerar automaticamente.</p>
+      <p class="muted">Clique em <b>+ micro-passos</b> para quebrar. Use <b>✨ Sugerir</b> para gerar automaticamente.<button class="hb" data-help="crono" aria-label="Ajuda: Cronograma" title="Ajuda">?</button></p>
     </div>
     <div id="cr-list"></div>
   </section>
 
   <section class="panel" id="panel-foco">
     <div class="card">
-      <div class="muted">Tarefa atual</div>
+      <div class="muted">Tarefa atual<button class="hb" data-help="foco" aria-label="Ajuda: Timer de foco" title="Ajuda">?</button></div>
       <div class="big" id="fo-tarefa">—</div>
       <div class="row" style="margin:10px 0">
         <input id="fo-min" type="number" min="1" value="10" style="width:80px"> min
@@ -424,7 +466,7 @@
         <input id="ib-txt" class="grow" placeholder="Captura rápida (qualquer coisa)..." style="flex:1">
         <button id="ib-add">Jogar no Inbox</button>
       </div>
-      <p class="muted">Depois processe: <b>Fazer agora</b>, <b>Agendar</b>, <b>Cronograma</b> ou <b>Deletar</b>.</p>
+      <p class="muted">Depois processe: <b>Fazer agora</b>, <b>Agendar</b>, <b>Cronograma</b> ou <b>Deletar</b>.<button class="hb" data-help="inbox" aria-label="Ajuda: Inbox" title="Ajuda">?</button></p>
     </div>
     <div id="ib-list"></div>
   </section>
@@ -434,7 +476,7 @@
       <div class="toggle-row">
         <div class="sw" id="sw-surprise"></div>
         <div style="flex:1">
-          <div style="font-weight:600">🎲 Modo surpresa</div>
+          <div style="font-weight:600">🎲 Modo surpresa<button class="hb" data-help="surpresa" aria-label="Ajuda: Modo surpresa" title="Ajuda">?</button></div>
           <div class="muted" id="surprise-desc">Quando ativo, ao bater a meta diária ou um marco de streak, o app sorteia uma recompensa surpresa da sua lista.</div>
         </div>
       </div>
@@ -444,7 +486,7 @@
     </div>
 
     <div class="card">
-      <div class="muted" style="margin-bottom:8px">Nova recompensa (máx 5 ativas)</div>
+      <div class="muted" style="margin-bottom:8px">Nova recompensa (máx 5 ativas)<button class="hb" data-help="rewards" aria-label="Ajuda: Recompensas" title="Ajuda">?</button></div>
       <div class="row" style="margin-bottom:8px">
         <input id="rw-nome" placeholder="Ex.: assistir 1 episódio" style="flex:1;min-width:200px">
       </div>
@@ -487,7 +529,7 @@
     <div class="card">
       <div class="row" style="justify-content:space-between;align-items:flex-start">
         <div>
-          <div class="muted" style="margin-bottom:2px">🐷 Cofrinho do que segurou</div>
+          <div class="muted" style="margin-bottom:2px">🐷 Cofrinho do que segurou<button class="hb" data-help="cofrinho" aria-label="Ajuda: Cofrinho" title="Ajuda">?</button></div>
           <div class="money-big" id="cof-saldo">R$ 0,00</div>
           <div class="money-sub" id="cof-sub">disponível pra resgatar</div>
         </div>
@@ -512,14 +554,14 @@
 
     <div class="card" id="sug-card-wrap">
       <div class="row" style="justify-content:space-between;margin-bottom:6px">
-        <div class="muted">💡 Sugestões acionáveis</div>
+        <div class="muted">💡 Sugestões acionáveis<button class="hb" data-help="analise" aria-label="Ajuda: Sugestões e análise" title="Ajuda">?</button></div>
         <button class="ghost" id="sug-refresh" title="Recalcular">↻</button>
       </div>
       <div id="sug-list"></div>
     </div>
 
     <div class="card">
-      <div class="muted" style="margin-bottom:8px">Registro rápido (2 toques)</div>
+      <div class="muted" style="margin-bottom:8px">Registro rápido (2 toques)<button class="hb" data-help="gastos" aria-label="Ajuda: Registrar gastos" title="Ajuda">?</button></div>
       <div class="row">
         <input id="g-val" type="number" min="0" step="0.01" placeholder="R$ valor" style="width:130px">
         <select id="g-cat" style="flex:1;min-width:140px"></select>
@@ -538,7 +580,7 @@
     </div>
 
     <div class="pausa-card" id="pausa-card">
-      <div class="t">💭 Pausa de impulso (opcional)</div>
+      <div class="t">💭 Pausa de impulso (opcional)<button class="hb" data-help="pausa" aria-label="Ajuda: Pausa de impulso" title="Ajuda">?</button></div>
       <div class="muted">Só se quiser. Se precisar usar o celular, pode pular — sem culpa.</div>
       <div class="row" style="margin-top:8px">
         <input id="pausa-val" type="number" min="0" step="0.01" placeholder="R$ valor" style="width:130px">
@@ -563,7 +605,7 @@
         <div style="text-align:right">
           <div class="muted" id="g-impulso-pct">0% impulso</div>
           <div class="muted" id="g-meta-label">Meta: —</div>
-          <button class="ghost" id="g-meta-edit" style="margin-top:4px">⚙ meta</button>
+          <button class="ghost" id="g-meta-edit" style="margin-top:4px">⚙ meta</button><button class="hb" data-help="metagasto" aria-label="Ajuda: Meta de gasto" title="Ajuda">?</button>
         </div>
       </div>
       <div class="money-bar" id="g-meta-bar-wrap"><div id="g-meta-bar" style="width:0%"></div></div>
@@ -571,7 +613,7 @@
 
     <div class="card">
       <div class="row" style="justify-content:space-between;margin-bottom:6px">
-        <div class="muted">📈 Análise</div>
+        <div class="muted">📈 Análise<button class="hb" data-help="analise" aria-label="Ajuda: Análise" title="Ajuda">?</button></div>
         <button class="ghost" id="ana-refresh" title="Atualizar">↻</button>
       </div>
       <div id="ana-content"></div>
@@ -620,7 +662,7 @@
     </div>
     <div class="card">
       <div class="row" style="justify-content:space-between;margin-bottom:6px">
-        <div class="muted">🏅 Marcos de streak</div>
+        <div class="muted">🏅 Marcos de streak<button class="hb" data-help="hist" aria-label="Ajuda: Histórico e streaks" title="Ajuda">?</button></div>
         <div class="muted" id="marco-progresso"></div>
       </div>
       <div id="marco-list"></div>
@@ -668,7 +710,29 @@
   </div>
 </div>
 
+<div class="help-bg" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+  <div class="help-box">
+    <div class="help-head">
+      <h2 id="help-title">Ajuda</h2>
+      <button class="ghost" id="help-close" aria-label="Fechar ajuda">✕</button>
+    </div>
+    <div class="help-body" id="help-body"></div>
+    <div class="help-foot">
+      <button class="ghost" id="help-all">📖 Ver manual completo</button>
+      <button id="help-ok">Entendi</button>
+    </div>
+  </div>
+</div>
+
 <canvas id="confetti"></canvas>
+<div class="dock" id="dock">
+  <button class="iconbtn" id="btn-export" title="Exportar backup JSON">⬇ Exportar</button>
+  <button class="iconbtn" id="btn-import" title="Importar backup JSON">⬆ Importar</button>
+  <input type="file" id="file-import" accept="application/json" class="hidden">
+  <button class="iconbtn hidden" id="btn-install" title="Instalar como app">📲 Instalar</button>
+  <button class="iconbtn" data-help="backup" aria-label="Ajuda: backup e instalação" title="Ajuda sobre backup e instalação">❓</button>
+</div>
+
 <div class="toast" id="toast"></div><script>
 /* ================== ELOGIOS ================== */
 const ELOGIOS = {
@@ -2321,7 +2385,7 @@ function desenharGastos(dias, vals){
 }
 function roundRect(ctx,x,y,w,h,r){
   if(h<=0){ h=0.01; }
-  r = Math.min(r, w/2, h/2);
+  r = Math.max(0, Math.min(r, w/2, h/2));   // raio negativo (canvas em aba escondida, largura 0) lança erro e trava o carregamento
   ctx.beginPath();
   ctx.moveTo(x+r,y);
   ctx.arcTo(x+w,y,x+w,y+h,r);
@@ -2601,13 +2665,292 @@ setInterval(()=>{
     if(left > 0){ $('#pausa-timer').textContent = fmt(left); }
   }
 }, 1000);
-</script>
 
-<div class="dock" id="dock">
-  <button class="iconbtn" id="btn-export" title="Exportar backup JSON">⬇ Exportar</button>
-  <button class="iconbtn" id="btn-import" title="Importar backup JSON">⬆ Importar</button>
-  <input type="file" id="file-import" accept="application/json" class="hidden">
-  <button class="iconbtn hidden" id="btn-install" title="Instalar como app">📲 Instalar</button>
-</div>
+/* ================== AJUDA / MANUAL ================== */
+const AJUDA_GRUPOS = [
+  { nome:'Primeiros passos',    chaves:['status','pontos','rewards','surpresa'] },
+  { nome:'Dia a dia',           chaves:['agenda','onething','inbox','notas','crono','foco'] },
+  { nome:'Dinheiro',            chaves:['gastos','pausa','cofrinho','metagasto'] },
+  { nome:'Acompanhamento',      chaves:['analise','resp','hist','dicas'] },
+  { nome:'Backup e instalação', chaves:['backup','instalar','tema'] }
+];
+
+const AJUDA = {
+  status: { emoji:'📍', titulo:'Barra de status', ver:['pontos','rewards','cofrinho'], html:`
+    <p>A faixa logo abaixo das abas mostra o seu progresso de relance:</p>
+    <ul>
+      <li><b>🎯 Meta diária</b>: pontos de hoje / meta do dia. Toque na engrenagem <b>⚙</b> para mudar a meta.</li>
+      <li><b>🎁 Próxima recompensa</b>: a recompensa mais perto de desbloquear. Toque nela para ir à aba Recompensas.</li>
+      <li><b>🐷 Cofrinho</b> (no topo, ao lado das abas): o dinheiro que você segurou de impulsos. Toque para ir aos Gastos; o <b>👁</b> esconde ou mostra o saldo.</li>
+    </ul>
+    <div class="h-tip">💡 Comece com meta <b>5</b>. É melhor bater todos os dias do que colocar 20 e desistir.</div>` },
+
+  pontos: { emoji:'⭐', titulo:'Como ganhar pontos', ver:['status','hist'], html:`
+    <p>Cada ação que ajuda você a se organizar vale pontos, e eles contam para a meta do dia:</p>
+    <ul>
+      <li>Concluir uma tarefa da <b>Agenda</b>: <span class="h-pts">+1</span></li>
+      <li>Concluir uma tarefa grande do <b>Cronograma</b>: <span class="h-pts">+1</span></li>
+      <li>Concluir um micro-passo do Cronograma: <span class="h-pts">+0,5</span></li>
+      <li>Completar um bloco do <b>Timer de foco</b>: <span class="h-pts">+1</span></li>
+      <li>Segurar um impulso na <b>Pausa</b>: <span class="h-pts">+1</span></li>
+      <li>Registrar um gasto (impulso ou não): <span class="h-pts">+0,5</span>, porque autoconsciência também é vitória</li>
+    </ul>` },
+
+  rewards: { emoji:'🎁', titulo:'Recompensas', ver:['surpresa','cofrinho'], html:`
+    <p>Aqui você define o que ganha quando cumpre seus objetivos. Até <b>5</b> recompensas ativas.</p>
+    <ol>
+      <li>Dê um nome (ex.: “Assistir 1 episódio”, “Pedir um hambúrguer”).</li>
+      <li>Escolha o tipo:
+        <ul>
+          <li><b>Pontos no dia</b>: desbloqueia quando você bate essa pontuação no dia.</li>
+          <li><b>Dias seguidos (streak)</b>: ex.: “cumprir a meta por 3 dias seguidos”.</li>
+          <li><b>Pontos acumulados</b>: desbloqueia ao somar essa quantidade de pontos no total.</li>
+          <li><b>Saldo do cofrinho (R$)</b>: ex.: “se eu juntar R$ 100 no cofrinho”.</li>
+        </ul>
+      </li>
+      <li>Escolha o ciclo: <b>Recorrente</b> (volta a bloquear e pode ser ganha de novo) ou <b>Única</b> (desbloqueia uma vez e fica concluída).</li>
+    </ol>
+    <p>Cada recompensa mostra uma barra de progresso. Ao desbloquear, escolha <b>Resgatar agora</b> ou <b>Guardar pra depois</b>.</p>` },
+
+  surpresa: { emoji:'🎲', titulo:'Modo surpresa', ver:['rewards'], html:`
+    <p>Com o modo ligado, ao bater a meta do dia (ou um marco de streak) o app <b>sorteia</b> uma das suas recompensas surpresa. A imprevisibilidade ajuda a manter a motivação.</p>
+    <ul>
+      <li>Ao criar uma recompensa, marque <b>🎲 Surpresa</b> para ela entrar no sorteio.</li>
+      <li>Escolha a raridade: <b>Comum</b>, <b>Rara</b> ou <b>Épica</b>.</li>
+      <li>Recompensas surpresa ignoram o progresso; só aparecem no sorteio.</li>
+      <li>Não gostou do resultado? Dá para <b>🔄 rerrolar</b> uma vez.</li>
+    </ul>
+    <div class="h-tip">As recompensas normais continuam funcionando por progresso, com o modo ligado ou não.</div>` },
+
+  agenda: { emoji:'🗓️', titulo:'Agenda: AGORA e DEPOIS', ver:['onething','pontos','inbox'], html:`
+    <p>Digite a tarefa, coloque um horário (opcional) e toque em <b>Adicionar</b>.</p>
+    <p>Em vez de uma lista gigante e assustadora, o app foca no presente:</p>
+    <ul>
+      <li><b>AGORA</b>: a primeira tarefa não concluída.</li>
+      <li><b>DEPOIS</b>: a próxima da fila.</li>
+    </ul>
+    <p>Cada tarefa concluída vale <span class="h-pts">+1</span> ponto. Na lista <b>Todas</b> você vê o resto.</p>` },
+
+  onething: { emoji:'🎯', titulo:'Modo “Só uma coisa”', ver:['agenda','foco'], html:`
+    <p>Quando a ansiedade bater, toque em <b>🎯 Só uma coisa</b> (logo abaixo das abas).</p>
+    <p>A tela fica escura mostrando <b>apenas a tarefa AGORA</b> e um timer. O resto do mundo desaparece.</p>
+    <ul>
+      <li><b>▶ Iniciar</b> e <b>⏸ Pausar</b> controlam o timer.</li>
+      <li><b>✓ Concluir</b> finaliza a tarefa.</li>
+      <li><b>✕ Sair</b> (canto da tela) volta para o app normal.</li>
+    </ul>` },
+
+  inbox: { emoji:'📥', titulo:'Inbox: cérebro de bolso', ver:['agenda','crono'], html:`
+    <p>Surgiu uma ideia no meio do banho? Uma conta para pagar? Digite e aperte <b>Enter</b>. Não pense em como fazer, apenas jogue lá dentro.</p>
+    <p>Quando tiver um tempo, decida o destino de cada item:</p>
+    <ul>
+      <li><b>Fazer agora</b>: vai para a Agenda.</li>
+      <li><b>Agendar</b>: pede um horário e vai para a Agenda.</li>
+      <li><b>Cronograma</b>: vai para as tarefas grandes, já quebrada em micro-passos.</li>
+      <li><b>Deletar</b>: some do Inbox.</li>
+    </ul>` },
+
+  notas: { emoji:'📝', titulo:'Notas', ver:['inbox'], html:`
+    <p>Um espaço para pensamentos mais longos do que uma tarefa. Escreva, toque em <b>Salvar nota</b> (ou use <b>Ctrl+Enter</b>) e classifique depois.</p>
+    <ul>
+      <li>Você pode editar o texto direto na nota; ele salva ao sair do campo.</li>
+      <li><b>→ Agenda</b> e <b>→ Cronograma</b> transformam a nota em tarefa.</li>
+      <li><b>Deletar</b> apaga a nota.</li>
+    </ul>` },
+
+  crono: { emoji:'🧩', titulo:'Cronograma: tarefas grandes', ver:['agenda','foco','pontos'], html:`
+    <p>Se a tarefa for “Estudar para a prova”, não coloque na Agenda. Coloque aqui.</p>
+    <ol>
+      <li>Digite a tarefa e toque em <b>Adicionar</b>.</li>
+      <li>Toque em <b>✨ Sugerir</b> e o app quebra a tarefa em micro-passos (ex.: “Separar material”, “Ler 1 tópico”). Você também pode criar os seus em <b>+ micro-passos</b>.</li>
+    </ol>
+    <p>Cada micro-passo concluído vale <span class="h-pts">+0,5</span> e a tarefa inteira vale <span class="h-pts">+1</span>.</p>` },
+
+  foco: { emoji:'⏱️', titulo:'Timer de foco', ver:['onething','pontos'], html:`
+    <p>Escolha a tarefa (da Agenda ou do Cronograma), defina os minutos (ex.: 10) e toque em <b>Iniciar</b>. Dá para pausar e resetar.</p>
+    <ul>
+      <li>Marque <b>Notificar ao fim</b> para o celular avisar quando o bloco acabar.</li>
+      <li>Ao completar o bloco você ganha <span class="h-pts">+1</span> ponto.</li>
+      <li>O mesmo timer aparece no modo “Só uma coisa”.</li>
+    </ul>` },
+
+  gastos: { emoji:'💰', titulo:'Registrar gastos', ver:['pausa','cofrinho','analise'], html:`
+    <p>O foco aqui não é proibir gastos, mas criar consciência.</p>
+    <ol>
+      <li>Digite o valor, escolha a categoria e (se quiser) uma descrição.</li>
+      <li>Se foi compra por impulso, marque <b>💭 Foi impulso?</b> e escolha os <b>gatilhos</b> (ansiedade, tédio etc.).</li>
+      <li>Toque em <b>+ Registrar</b>.</li>
+    </ol>
+    <p>Registrar vale <span class="h-pts">+0,5</span> ponto. Mais abaixo você vê o total do mês, o gráfico dos últimos 7 dias, o gasto por categoria e pode criar suas próprias categorias.</p>
+    <div class="h-tip"><b>Limpar tudo</b> apaga os gastos, mas não mexe no cofrinho.</div>` },
+
+  pausa: { emoji:'💭', titulo:'Pausa de impulso', ver:['cofrinho','resp'], html:`
+    <p>Prestes a comprar algo por impulso? Use o cartão amarelo:</p>
+    <ol>
+      <li>Digite o valor e o que você quer comprar.</li>
+      <li>Toque em <b>Pausar</b>. O app inicia um timer (10 min por padrão).</li>
+      <li>Ao final, escolha:
+        <ul>
+          <li><b>Segurei 💪</b>: o valor vai para o seu Cofrinho e você ganha <span class="h-pts">+1</span> ponto.</li>
+          <li><b>Comprei</b>: o app registra como gasto por impulso.</li>
+          <li><b>Preciso do celular — pular</b>: sem culpa, a pausa é opcional.</li>
+        </ul>
+      </li>
+    </ol>
+    <div class="h-tip">Se a ansiedade estiver alta, a <b>🌬️ Respiração</b> pode ajudar enquanto o timer corre.</div>` },
+
+  cofrinho: { emoji:'🐷', titulo:'Cofrinho', ver:['pausa','rewards'], html:`
+    <p>O dinheiro que você <b>segurou</b> de impulsos fica acumulado aqui e aparece no chip do topo da tela.</p>
+    <ul>
+      <li><b>💸 Resgatar</b>: use o dinheiro em algo que realmente vale a pena. O app pergunta quanto e para quê. Ele não bloqueia o resgate, apenas guarda a prova do seu autocontrole.</li>
+      <li><b>📜 Histórico</b>: lista tudo o que entrou e saiu.</li>
+      <li>O cartão também mostra o <b>total economizado</b> e quantos <b>dias seguidos</b> você segurou impulsos.</li>
+      <li>Dá para criar uma recompensa que desbloqueia ao atingir certo saldo.</li>
+    </ul>` },
+
+  metagasto: { emoji:'🎯', titulo:'Meta de gasto mensal', ver:['analise'], html:`
+    <p>Toque em <b>⚙ meta</b> para definir quanto quer gastar por mês (deixe 0 para ficar sem meta).</p>
+    <p>A barra mostra quanto da meta já foi usado e muda de cor quando você ultrapassa. Se a partir do dia 15 você ainda estiver dentro do limite, o app comemora com uma mensagem de parabéns.</p>` },
+
+  analise: { emoji:'📈', titulo:'Análise e sugestões', ver:['gastos','pausa'], html:`
+    <p>Na aba Gastos, role para ver o que o app aprendeu com seus registros:</p>
+    <ul>
+      <li><b>Comparação</b>: se você gastou mais ou menos que no mês passado.</li>
+      <li><b>Sugestões acionáveis</b>: por exemplo, se você gasta muito à noite, ele sugere ativar a pausa noturna; se marca sempre “ansiedade”, sugere ativar o lembrete de respiração.</li>
+    </ul>
+    <p>Em cada sugestão você pode <b>aceitar</b>, <b>adiar por 7 dias</b> ou <b>dispensar</b>. O botão <b>↻</b> recalcula tudo.</p>` },
+
+  resp: { emoji:'🌬️', titulo:'Respiração guiada', ver:['pausa'], html:`
+    <p>Toque em <b>🌬️ Respiração</b> (logo abaixo das abas) para abrir uma animação guiada:</p>
+    <ul><li>Inspire por <b>4s</b></li><li>Segure por <b>4s</b></li><li>Solte por <b>6s</b></li></ul>
+    <p>Ótimo para quando a ansiedade, que muitas vezes leva ao impulso, bater.</p>` },
+
+  hist: { emoji:'📊', titulo:'Histórico e streaks', ver:['pontos','surpresa'], html:`
+    <p>Na aba Histórico você acompanha:</p>
+    <ul>
+      <li>Pontos totais, pontos de hoje e dias seguidos.</li>
+      <li>O gráfico de pontos dos últimos 7 dias.</li>
+      <li><b>🏅 Marcos de streak</b>: 3, 7, 14, 30, 60 e 100 dias seguidos batendo a meta. Cada marco rende confete e mensagem de parabéns.</li>
+      <li>Os eventos recentes, com o que gerou cada ponto.</li>
+    </ul>
+    <p>O <b>streak</b> conta dias consecutivos cumprindo a meta diária.</p>` },
+
+  dicas: { emoji:'🧠', titulo:'Dicas do app', html:`
+    <p>Sempre que você abrir a Agenda, o modo “Só uma coisa” ou a Pausa, aparece uma dica aleatória no rodapé da tela. São pequenas pílulas de informação para ajudar no dia a dia.</p>` },
+
+  backup: { emoji:'💾', titulo:'Backup dos seus dados', ver:['instalar'], html:`
+    <p>O app salva tudo sozinho na memória do seu navegador. <b>Se você limpar os dados do navegador ou trocar de celular, perde tudo.</b></p>
+    <ul>
+      <li><b>⬇ Exportar</b> (barra de baixo): baixa um arquivo <b>.json</b> com tudo. Guarde no Drive ou mande por e-mail.</li>
+      <li><b>⬆ Importar</b>: escolha esse arquivo para recuperar seus dados, por exemplo num celular novo.</li>
+    </ul>
+    <div class="h-tip">Exporte de vez em quando, principalmente antes de limpar o navegador ou trocar de aparelho.</div>` },
+
+  instalar: { emoji:'📲', titulo:'Instalar no celular', ver:['backup'], html:`
+    <p>Instalado, o app abre em tela cheia, com ícone próprio, e funciona <b>offline</b>.</p>
+    <ul>
+      <li><b>Android</b>: toque em <b>📲 Instalar</b> na barra de baixo (ou use o menu do Chrome). O ícone azul do “O” aparece na tela inicial.</li>
+      <li><b>iPhone (Safari)</b>: toque no botão de compartilhar e escolha <b>Adicionar à Tela de Início</b>.</li>
+    </ul>` },
+
+  tema: { emoji:'🌗', titulo:'Tema claro e escuro', html:`
+    <p>O botão <b>🌗</b> (canto direito, abaixo das abas) alterna entre tema escuro e claro. A escolha fica salva.</p>` }
+};
+
+let helpModo = null;       // 'manual' | 'topico' | null
+let helpFocoAnterior = null;
+
+function ajudaAbrirModal(){
+  const m = $('#help-modal');
+  if(!m.classList.contains('on')){
+    helpFocoAnterior = document.activeElement;
+    m.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+  $('#help-body').scrollTop = 0;
+  $('#help-close').focus();
+}
+function fecharAjuda(){
+  const m = $('#help-modal');
+  if(!m.classList.contains('on')) return;
+  m.classList.remove('on');
+  document.body.style.overflow = '';
+  helpModo = null;
+  if(helpFocoAnterior && helpFocoAnterior.focus) { try{ helpFocoAnterior.focus(); }catch(e){} }
+}
+function ajudaVerTambem(t){
+  if(!t.ver || !t.ver.length) return '';
+  const bts = t.ver.filter(k=>AJUDA[k]).map(k=>`<button class="ghost" data-help="${k}">${AJUDA[k].emoji} ${AJUDA[k].titulo}</button>`).join('');
+  return bts ? `<div class="h-ver"><span>Veja também:</span>${bts}</div>` : '';
+}
+function abrirAjuda(k){
+  const t = AJUDA[k];
+  if(!t){ abrirManual(); return; }
+  helpModo = 'topico';
+  $('#help-title').textContent = t.emoji + ' ' + t.titulo;
+  $('#help-body').innerHTML = t.html + ajudaVerTambem(t);
+  $('#help-all').classList.remove('hidden');
+  ajudaAbrirModal();
+}
+function abrirManual(k){
+  helpModo = 'manual';
+  $('#help-title').textContent = '📖 Manual do OrganizeMe';
+  let h = '<p class="muted">Toque em um assunto para ver como ele funciona. Não tente usar tudo no primeiro dia: comece pela <b>Agenda</b> e pelas <b>Recompensas</b>. O excesso de ferramentas pode gerar paralisia; vá com calma, um passo de cada vez.</p>';
+  AJUDA_GRUPOS.forEach(g=>{
+    h += `<div class="h-grupo">${g.nome}</div>`;
+    g.chaves.forEach(key=>{
+      const t = AJUDA[key];
+      h += `<details class="h-det" id="hd-${key}"${key===k?' open':''}><summary><span>${t.emoji}</span> ${t.titulo}</summary><div class="h-corpo">${t.html}${ajudaVerTambem(t)}</div></details>`;
+    });
+  });
+  $('#help-body').innerHTML = h;
+  $('#help-all').classList.add('hidden');
+  ajudaAbrirModal();
+  if(k){ const d = document.getElementById('hd-'+k); if(d) d.scrollIntoView({block:'start'}); }
+}
+
+// Botões [data-help] (captura: não dispara o clique do chip/aba onde estiverem)
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-help]');
+  if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const k = b.dataset.help;
+  if(helpModo === 'manual'){
+    const d = document.getElementById('hd-'+k);
+    if(d){ d.open = true; d.scrollIntoView({block:'start', behavior:'smooth'}); return; }
+  }
+  abrirAjuda(k);
+}, true);
+
+$('#btn-help').onclick = ()=> abrirManual();
+$('#help-all').onclick = ()=> abrirManual();
+$('#help-close').onclick = fecharAjuda;
+$('#help-ok').onclick = fecharAjuda;
+$('#help-modal').addEventListener('click', e=>{ if(e.target.id === 'help-modal') fecharAjuda(); });
+document.addEventListener('keydown', e=>{
+  const m = $('#help-modal');
+  if(!m.classList.contains('on')) return;
+  if(e.key === 'Escape'){ e.stopPropagation(); fecharAjuda(); return; }
+  if(e.key === 'Tab'){   // mantém o foco dentro do painel
+    const f = [...m.querySelectorAll('button:not([disabled]), summary, [href], input, select, textarea')].filter(x=>x.offsetParent !== null);
+    if(!f.length) return;
+    const first = f[0], last = f[f.length-1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+}, true);
+
+// Dica de boas-vindas (aparece até o usuário dispensar)
+(function(){
+  const KEY = 'organizeme_help_v1';
+  const box = $('#help-welcome');
+  let visto = false;
+  try{ visto = localStorage.getItem(KEY) === '1'; }catch(e){}
+  if(visto) box.classList.add('hidden');
+  $('#help-welcome-open').onclick = ()=> abrirManual();
+  $('#help-welcome-ok').onclick = ()=>{ box.classList.add('hidden'); try{ localStorage.setItem(KEY,'1'); }catch(e){} };
+})();
+
+</script>
 </body>
 </html>
